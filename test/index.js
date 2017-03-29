@@ -164,7 +164,7 @@ describe('H2o2', () => {
                                         reject(error);
                                     }
 
-                                    reject({ message: 'some error' });
+                                    reject(new Error('some error'));
                                 });
                             });
                         }
@@ -207,7 +207,7 @@ describe('H2o2', () => {
                     kibi_proxy: {
                         host: 'localhost',
                         port: upstream.info.port,
-                        modifyPayload: (request) => {
+                        modifyPayload: function (request) {
 
                             const req = request.raw.req;
                             return new Promise((fulfill, reject) => {
@@ -227,22 +227,20 @@ describe('H2o2', () => {
                                 });
                             });
                         },
-                        onResponse: (error, response, request, reply, settings, ttl, data) => {
+                        onResponse: function (error, response, request, reply, settings, ttl, data) {
 
-                            return new Promise((fulfill, reject) => {
+                            if (error) {
+                                return reply(err);
+                            }
 
-                                if (error) {
-                                    reject(error);
-                                }
+                            response.on('error', (err) => {
 
-                                Wreck.read(response, null, (err, payload) => {
+                                return reply(err);
+                            });
+                            response.on('data', (chunk) => {});
+                            response.on('end', () => {
 
-                                    if (err) {
-                                        reject(err);
-                                    }
-
-                                    reject({ message: 'some error' });
-                                });
+                                return reply(Boom.badRequest('some error', new Error()));
                             });
                         }
                     }
@@ -257,10 +255,6 @@ describe('H2o2', () => {
             (res) => {
 
                 const payload = JSON.parse(res.payload);
-
-                console.log('---payload');
-                console.log(payload);
-
                 expect(payload.statusCode).to.equal(400);
                 expect(payload.message).to.equal('some error');
                 done();
