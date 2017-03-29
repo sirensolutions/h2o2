@@ -207,7 +207,7 @@ describe('H2o2', () => {
                     kibi_proxy: {
                         host: 'localhost',
                         port: upstream.info.port,
-                        modifyPayload: function (request) {
+                        modifyPayload: (request) => {
 
                             const req = request.raw.req;
                             return new Promise((fulfill, reject) => {
@@ -227,7 +227,7 @@ describe('H2o2', () => {
                                 });
                             });
                         },
-                        onResponse: function (error, response, request, reply, settings, ttl, data) {
+                        onResponse: (error, response, request, reply, settings, ttl, data) => {
 
                             if (error) {
                                 return reply(err);
