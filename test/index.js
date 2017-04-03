@@ -78,7 +78,7 @@ describe('H2o2', () => {
                     kibi_proxy: {
                         host: 'localhost',
                         port: upstream.info.port,
-                        modifyPayload: (request) => {
+                        onBeforeSendRequest: (request) => {
 
                             const req = request.raw.req;
                             return new Promise((fulfill, reject) => {
@@ -133,7 +133,7 @@ describe('H2o2', () => {
         });
     });
 
-    it('modifyPayload the request with error', { parallel: false }, (done) => {
+    it('onBeforeSendRequest the request with error', { parallel: false }, (done) => {
 
         const dataHandler = function (request, reply) {
 
@@ -153,7 +153,7 @@ describe('H2o2', () => {
                     kibi_proxy: {
                         host: 'localhost',
                         port: upstream.info.port,
-                        modifyPayload: (request) => {
+                        onBeforeSendRequest: (request) => {
 
                             const req = request.raw.req;
                             return new Promise((fulfill, reject) => {
@@ -207,7 +207,7 @@ describe('H2o2', () => {
                     kibi_proxy: {
                         host: 'localhost',
                         port: upstream.info.port,
-                        modifyPayload: (request) => {
+                        onBeforeSendRequest: (request) => {
 
                             const req = request.raw.req;
                             return new Promise((fulfill, reject) => {
