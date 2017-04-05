@@ -97,23 +97,20 @@ describe('H2o2', () => {
                         },
                         onResponse: (error, response, request, reply, settings, ttl, data) => {
 
-                            return new Promise((fulfill, reject) => {
+                            if (error) {
+                                reply(error);
+                            }
 
-                                if (error) {
-                                    reject(error);
+                            Wreck.read(response, null, (err, payload) => {
+
+                                if (err) {
+                                    reply(err);
                                 }
 
-                                Wreck.read(response, null, (err, payload) => {
-
-                                    if (err) {
-                                        reject(err);
-                                    }
-
-                                    const body = JSON.parse(payload.toString());
-                                    body.copy = body.copy.toUpperCase();
-                                    body.john = data;
-                                    fulfill(reply(new Buffer(JSON.stringify(body))));
-                                });
+                                const body = JSON.parse(payload.toString());
+                                body.copy = body.copy.toUpperCase();
+                                body.john = data;
+                                reply(new Buffer(JSON.stringify(body)));
                             });
                         }
                     }
