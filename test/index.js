@@ -78,46 +78,39 @@ describe('H2o2', () => {
                     kibi_proxy: {
                         host: 'localhost',
                         port: upstream.info.port,
-                        modifyPayload: (request) => {
+                        onBeforeSendRequest: (request) => {
 
                             const req = request.raw.req;
                             return new Promise((fulfill, reject) => {
 
-                                const chunks = [];
-                                req.on('error', reject);
-                                req.on('data', (chunk) => {
+                                Wreck.read(req, null, (error, payload) => {
 
-                                    chunks.push(chunk);
-                                });
-                                req.on('end', () => {
+                                    if (error) {
+                                        reject(error);
+                                    }
 
-                                    const body = JSON.parse(Buffer.concat(chunks));
+                                    const body = JSON.parse(payload.toString());
                                     body.copy = body.msg;
-                                    const buffer = new Buffer(JSON.stringify(body));
-                                    fulfill({ data: 'connor', payload: buffer });
+                                    fulfill({ data: 'connor', payload: new Buffer(JSON.stringify(body)) });
                                 });
                             });
                         },
-                        modifyResponse: (response, data) => {
+                        onResponse: (error, response, request, reply, settings, ttl, data) => {
 
-                            return new Promise((fulfill, reject) => {
+                            if (error) {
+                                reply(error);
+                            }
 
-                                const chunks = [];
-                                response.on('error', reject);
-                                response.on('data', (d) => {
+                            Wreck.read(response, null, (err, payload) => {
 
-                                    chunks.push(d);
-                                });
-                                response.on('end', () => {
+                                if (err) {
+                                    reply(err);
+                                }
 
-                                    const body = JSON.parse(Buffer.concat(chunks).toString());
-                                    body.copy = body.copy.toUpperCase();
-                                    body.john = data;
-                                    fulfill({
-                                        response,
-                                        data: { body: new Buffer(JSON.stringify(body)) }
-                                    });
-                                });
+                                const body = JSON.parse(payload.toString());
+                                body.copy = body.copy.toUpperCase();
+                                body.john = data;
+                                reply(new Buffer(JSON.stringify(body)));
                             });
                         }
                     }
@@ -137,7 +130,7 @@ describe('H2o2', () => {
         });
     });
 
-    it('modifyPayload the request with error', { parallel: false }, (done) => {
+    it('onBeforeSendRequest the request with error', { parallel: false }, (done) => {
 
         const dataHandler = function (request, reply) {
 
@@ -157,42 +150,18 @@ describe('H2o2', () => {
                     kibi_proxy: {
                         host: 'localhost',
                         port: upstream.info.port,
-                        modifyPayload: (request) => {
+                        onBeforeSendRequest: (request) => {
 
                             const req = request.raw.req;
                             return new Promise((fulfill, reject) => {
 
-                                const chunks = [];
-                                req.on('error', reject);
-                                req.on('data', (chunk) => {
+                                Wreck.read(req, null, (error, payload) => {
 
-                                    chunks.push(chunk);
-                                });
-                                req.on('end', () => {
+                                    if (error) {
+                                        reject(error);
+                                    }
 
-                                    reject({ message: 'some error' });
-                                });
-                            });
-                        },
-                        modifyResponse: (response, data) => {
-
-                            return new Promise((fulfill, reject) => {
-
-                                const chunks = [];
-                                response.on('error', reject);
-                                response.on('data', (d) => {
-
-                                    chunks.push(d);
-                                });
-                                response.on('end', () => {
-
-                                    const body = JSON.parse(Buffer.concat(chunks).toString());
-                                    body.copy = body.copy.toUpperCase();
-                                    body.john = data;
-                                    fulfill({
-                                        response,
-                                        data: { body: new Buffer(JSON.stringify(body)) }
-                                    });
+                                    reject(new Error('some error'));
                                 });
                             });
                         }
@@ -215,7 +184,7 @@ describe('H2o2', () => {
         });
     });
 
-    it('modifyResponse the request with error', { parallel: false }, (done) => {
+    it('onResponse the request with error', { parallel: false }, (done) => {
 
         const dataHandler = function (request, reply) {
 
@@ -235,7 +204,7 @@ describe('H2o2', () => {
                     kibi_proxy: {
                         host: 'localhost',
                         port: upstream.info.port,
-                        modifyPayload: (request) => {
+                        onBeforeSendRequest: (request) => {
 
                             const req = request.raw.req;
                             return new Promise((fulfill, reject) => {
@@ -255,20 +224,20 @@ describe('H2o2', () => {
                                 });
                             });
                         },
-                        modifyResponse: (response, data) => {
+                        onResponse: (error, response, request, reply, settings, ttl, data) => {
 
-                            return new Promise((fulfill, reject) => {
+                            if (error) {
+                                return reply(err);
+                            }
 
-                                const chunks = [];
-                                response.on('error', reject);
-                                response.on('data', (d) => {
+                            response.on('error', (err) => {
 
-                                    chunks.push(d);
-                                });
-                                response.on('end', () => {
+                                return reply(err);
+                            });
+                            response.on('data', (chunk) => {});
+                            response.on('end', () => {
 
-                                    reject({ message: 'some error' });
-                                });
+                                return reply(Boom.badRequest('some error', new Error()));
                             });
                         }
                     }
