@@ -1,7 +1,7 @@
 {
   "name": "kibi-h2o2",
   "description": "Kibi fork of proxy handler plugin for hapi.js",
-  "version": "5.4.0-kibi-path-1",
+  "version": "5.4.0-kibi-5",
   "repository": "git://github.com/sirensolutions/h2o2",
   "main": "lib/index.js",
   "keywords": [
