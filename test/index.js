@@ -91,11 +91,11 @@ describe('H2o2', () => {
 
                                     const body = JSON.parse(payload.toString());
                                     body.copy = body.msg;
-                                    fulfill({ data: 'connor', payload: new Buffer(JSON.stringify(body)) });
+                                    fulfill({ data: 'connor', payload: Buffer.from(JSON.stringify(body)) });
                                 });
                             });
                         },
-                        onResponse: (error, response, request, reply, settings, ttl, data) => {
+                        onResponse: (error, response, request, reply, settings, ttl) => {
 
                             if (error) {
                                 reply(error);
@@ -109,8 +109,7 @@ describe('H2o2', () => {
 
                                 const body = JSON.parse(payload.toString());
                                 body.copy = body.copy.toUpperCase();
-                                body.john = data;
-                                reply(new Buffer(JSON.stringify(body)));
+                                reply(Buffer.from(JSON.stringify(body)));
                             });
                         }
                     }
@@ -124,7 +123,7 @@ describe('H2o2', () => {
             },
             (res) => {
 
-                expect(res.payload).to.equal(JSON.stringify({ msg: 'hello', copy: 'HELLO', john: 'connor' }));
+                expect(res.payload).to.equal(JSON.stringify({ msg: 'hello', copy: 'HELLO' }));
                 done();
             });
         });
@@ -219,7 +218,7 @@ describe('H2o2', () => {
 
                                     const body = JSON.parse(Buffer.concat(chunks));
                                     body.copy = body.msg;
-                                    const buffer = new Buffer(JSON.stringify(body));
+                                    const buffer = Buffer.from(JSON.stringify(body));
                                     fulfill({ data: 'connor', payload: buffer });
                                 });
                             });
@@ -227,7 +226,7 @@ describe('H2o2', () => {
                         onResponse: (error, response, request, reply, settings, ttl, data) => {
 
                             if (error) {
-                                return reply(err);
+                                return reply(error);
                             }
 
                             response.on('error', (err) => {
@@ -511,7 +510,7 @@ describe('H2o2', () => {
             const server = provisionServer();
             server.route({ method: 'GET', path: '/gzip', handler: { kibi_proxy: { host: 'localhost', port: upstream.info.port, passThrough: true } } });
 
-            Zlib.gzip(new Buffer('123456789012345678901234567890123456789012345678901234567890'), (err, zipped) => {
+            Zlib.gzip(Buffer.from('123456789012345678901234567890123456789012345678901234567890'), (err, zipped) => {
 
                 expect(err).to.not.exist();
 
