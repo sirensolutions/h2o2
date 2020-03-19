@@ -91,7 +91,7 @@ describe('H2o2', () => {
 
                                     const body = JSON.parse(payload.toString());
                                     body.copy = body.msg;
-                                    fulfill({ data: 'connor', payload: new Buffer(JSON.stringify(body)) });
+                                    fulfill({ data: 'connor', payload: Buffer.from(JSON.stringify(body)) });
                                 });
                             });
                         },
@@ -109,7 +109,7 @@ describe('H2o2', () => {
 
                                 const body = JSON.parse(payload.toString());
                                 body.copy = body.copy.toUpperCase();
-                                reply(new Buffer(JSON.stringify(body)));
+                                reply(Buffer.from(JSON.stringify(body)));
                             });
                         }
                     }
@@ -218,7 +218,7 @@ describe('H2o2', () => {
 
                                     const body = JSON.parse(Buffer.concat(chunks));
                                     body.copy = body.msg;
-                                    const buffer = new Buffer(JSON.stringify(body));
+                                    const buffer = Buffer.from(JSON.stringify(body));
                                     fulfill({ data: 'connor', payload: buffer });
                                 });
                             });
@@ -510,7 +510,7 @@ describe('H2o2', () => {
             const server = provisionServer();
             server.route({ method: 'GET', path: '/gzip', handler: { kibi_proxy: { host: 'localhost', port: upstream.info.port, passThrough: true } } });
 
-            Zlib.gzip(new Buffer('123456789012345678901234567890123456789012345678901234567890'), (err, zipped) => {
+            Zlib.gzip(Buffer.from('123456789012345678901234567890123456789012345678901234567890'), (err, zipped) => {
 
                 expect(err).to.not.exist();
 
