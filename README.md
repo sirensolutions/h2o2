@@ -177,7 +177,7 @@ server.route({
                 console.log('doing some aditional stuff before redirecting');
                 callback(null, 'https://some.upstream.service.com/');
             },
-            onResponse: function (err, res, request, reply, settings, ttl, data) {
+            onResponse: function (err, res, request, reply, settings, ttl) {
 
                 console.log('receiving the response from the upstream.');
                 Wreck.read(res, { json: true }, function (err, payload) {
@@ -190,4 +190,12 @@ server.route({
     }
 });
 
+```
+
+### Tagging new release
+
+Before tagging make sure the version in package.json was bumped and commited
+
+```
+git tag -a 5.4.0-kibi-5 -m 'version 5.4.0-kibi-5' && git push origin 5.4.0-kibi-5
 ```
