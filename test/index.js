@@ -95,7 +95,7 @@ describe('H2o2', () => {
                                 });
                             });
                         },
-                        onResponse: (error, response, request, reply, settings, ttl, data) => {
+                        onResponse: (error, response, request, reply, settings, ttl) => {
 
                             if (error) {
                                 reply(error);
@@ -109,7 +109,6 @@ describe('H2o2', () => {
 
                                 const body = JSON.parse(payload.toString());
                                 body.copy = body.copy.toUpperCase();
-                                body.john = data;
                                 reply(new Buffer(JSON.stringify(body)));
                             });
                         }
@@ -124,7 +123,7 @@ describe('H2o2', () => {
             },
             (res) => {
 
-                expect(res.payload).to.equal(JSON.stringify({ msg: 'hello', copy: 'HELLO', john: 'connor' }));
+                expect(res.payload).to.equal(JSON.stringify({ msg: 'hello', copy: 'HELLO' }));
                 done();
             });
         });
@@ -227,7 +226,7 @@ describe('H2o2', () => {
                         onResponse: (error, response, request, reply, settings, ttl, data) => {
 
                             if (error) {
-                                return reply(err);
+                                return reply(error);
                             }
 
                             response.on('error', (err) => {
