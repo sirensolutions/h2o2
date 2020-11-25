@@ -15,3 +15,11 @@
 - [Changelog](https://hapi.dev/family/h2o2/changelog/)
 - [Project policies](https://hapi.dev/policies/)
 - [Free and commercial support options](https://hapi.dev/support/)
+
+
+## Tagging new release
+
+Before tagging make sure the version in package.json was bumped and committed
+
+```
+git tag -a 5.4.0-kibi-5 -m 'version 5.4.0-kibi-5' && git push origin 5.4.0-kibi-5

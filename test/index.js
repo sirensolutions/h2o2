@@ -1961,4 +1961,72 @@ describe('h2o2', () => {
 
         expect(res.payload).to.equal('ok');
     });
+
+    it('updates payload based on mapHttpClientOptions', async () => {
+
+        const upstream = Hapi.server();
+        upstream.route({ method: 'POST', path: '/', handler: (request) => request.payload });
+        await upstream.start();
+
+        const server = Hapi.server();
+        await server.register(H2o2);
+
+        server.route({
+            method: 'POST',
+            path: '/',
+            handler: {
+                proxy: {
+                    mapHttpClientOptions: async (request) => ({ payload: await internals.parseReadStream(request.payload) + 'bar' }),
+                    host: 'localhost',
+                    port: upstream.info.port
+                }
+            }
+        });
+
+        const response = await server.inject({ method: 'POST', url: '/', payload: 'foo', headers: { 'Content-Type': 'text/plain' } });
+        expect(response.payload).to.equal('foobar');
+        expect(response.statusCode).to.equal(200);
+
+        await upstream.stop();
+    });
+
+    it('does not encode URI if already encoded', async () => {
+
+        const upstream = Hapi.server();
+        upstream.route({ method: 'GET', path: '/{param}', handler: (request) => ({ path: request.path, param: request.params.param }) });
+        await upstream.start();
+
+        const server = Hapi.server();
+        await server.register(H2o2);
+
+        server.route({
+            method: 'GET',
+            path: '/{param}',
+            handler: {
+                proxy: {
+                    host: 'localhost',
+                    port: upstream.info.port
+                }
+            }
+        });
+
+        const response = await server.inject(encodeURI('/フーバー'));
+        const { path, param } = JSON.parse(response.payload);
+        expect(path).to.equal(encodeURI('/フーバー'));
+        expect(param).to.equal('フーバー');
+        expect(response.statusCode).to.equal(200);
+
+        await upstream.stop();
+    });
 });
+
+internals.parseReadStream = function (stream) {
+
+    return new Promise((resolve, reject) => {
+
+        const chunks = [];
+        stream.on('error', reject);
+        stream.on('data', (chunk) => chunks.push(chunk));
+        stream.on('end', () => resolve(chunks.join().toString()));
+    });
+};
