@@ -26,5 +26,7 @@ jobs:
         run: npm install
       - name: install hapi
         run: npm install @hapi/hapi@${{ matrix.hapi }}
+      - name: install eslint
+        run: npm install --no-save eslint
       - name: test
         run: npm test
