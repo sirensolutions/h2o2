@@ -1,7 +1,7 @@
 {
   "name": "@sirensolutions/h2o2",
   "description": "Fork of proxy handler plugin for hapi.js that adds ability to modify request",
-  "version": "9.0.2-kibi-1",
+  "version": "9.0.2-kibi-2",
   "repository": "git://github.com/sirensolutions/h2o2",
   "main": "lib/index.js",
   "engines": {
